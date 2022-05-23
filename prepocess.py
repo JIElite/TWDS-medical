@@ -236,5 +236,4 @@ def convert_HIVTSTD3_categorical(month_year):
     elif month_year == 999999:
         return 9
     else:
-        print(month_year)
-#         raise ValueError(invalid_col_val_msg('HIVTSTD3', month_year))
+        raise ValueError(invalid_col_val_msg('HIVTSTD3', month_year))
