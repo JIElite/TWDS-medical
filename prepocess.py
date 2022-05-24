@@ -1,3 +1,4 @@
+from calendar import month
 import numpy as np
 
 
@@ -275,11 +276,13 @@ def convert_HIVTSTD3_categorical(month_year):
         return 0
    
     month_year = check_and_convert_int(month_year)
-    if 11985 <= month_year <= 122021:
+    if 11985 <= month_year <= 122021: # valid data
         return 1
-    elif month_year == 777777 or 771980 <= month_year <= 772021:
+    elif month_year == 777777: # missing both month and year data
         return 7
-    elif month_year == 999999:
+    elif 771980 <= month_year <= 772021: # missing year data
+        return 8
+    elif month_year == 999999: # Refused
         return 9
     else:
         raise ValueError(invalid_col_val_msg('HIVTSTD3', month_year))
