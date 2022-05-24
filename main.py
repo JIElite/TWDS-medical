@@ -1,6 +1,7 @@
 import pandas as pd
 
-from prepocess import (preprocess_DIABAGE3,
+from prepocess import (reserved_cols,
+                       preprocess_DIABAGE3,
                        preprocess_FEETCHK3,
                        preprocess_CHILDREN,
                        preprocess_QSTLANG,
@@ -22,7 +23,7 @@ preprocess_funcs = {'DIABAGE3': preprocess_DIABAGE3,
                     'HIVTSTD3': preprocess_HIVTSTD3_datetime}
 
 df = pd.read_csv(RAW_DATA_PATH)
+df_out = None
 for preprocess_func in preprocess_funcs.values():
-    df = preprocess_func(df)
-df.drop(columns=preprocess_funcs.keys())
-df.to_csv(PREPROCESSED_DATA_PATH)
+    df_out = preprocess_func(df)
+df_out[reserved_cols].to_csv(PREPROCESSED_DATA_PATH)

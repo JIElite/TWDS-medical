@@ -1,6 +1,24 @@
 import numpy as np
 
 
+reserved_cols = ['DIABAGE3_N',
+                 'DIABAGE3_C',
+                 'FEETCHK3_N',
+                 'FEETCHK3_C',
+                 'CHILDREN_N',
+                 'CHILDREN_C',
+                 'QSTLANG',
+                 'HHADULT_N',
+                 'HHADULT_C',
+                 'HTM4_N',
+                 'HTM4_C',
+                 'MARIJAN1_N',
+                 'MARIJAN1_C',
+                 'HIVTSTD3_month',
+                 'HIVTSTD3_year',
+                 'HIVTSTD3_C']
+
+
 def invalid_col_val_msg(colname, val, additional=''):
     return f'Invalid value in {colname}: {val}{additional}'
 
