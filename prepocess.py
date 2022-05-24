@@ -14,6 +14,11 @@ def preprocess_DIABAGE3(df):
     return df
 
 
+def preprocess_FEETCHK3(df):
+    df['FEETCHK3_N'] = df['FEETCHK3'].apply(convert_FEETCHK3_numeric)
+    df['FEETCHK3_C'] = df['FEETCHK3'].apply(convert_FEETCHK3_categorical).astype('category')
+    return df
+
 def convert_FEETCHK3_numeric(value):
     if 101 <= value <= 199:
         return value * 365
@@ -45,6 +50,11 @@ def convert_FEETCHK3_categorical(value):
     else:
         raise ValueError(invalid_col_val_msg('FEETCHK3', value))
 
+
+def preprocess_CHILDREN(df):
+    df['CHILDREN_N'] = df['CHILDREN'].apply(convert_CHILDREN_numeric)
+    df['CHILDREN_C'] = df['CHILDREN'].apply(convert_CHILDREN_categorical).astype('category')
+    return df
 
 def convert_CHILDREN_numeric(n_children):
     # Note:
@@ -93,6 +103,11 @@ def preprocess_QSTLANG(df):
     return df
 
 
+def preprocess_HHADULT(df):
+    df['HHADULT_N'] = df['HHADULT'].apply(convert_HHADULT_numeric)
+    df['HHADULT_C'] = df['HHADULT'].apply(convert_HHADULT_categorical).astype('category')
+    return df
+
 def convert_HHADULT_numeric(n_adults):
     if 1 <= n_adults <= 76:
         return n_adults
@@ -111,6 +126,11 @@ def convert_HHADULT_categorical(n_adults):
     else:
         raise ValueError(invalid_col_val_msg('HHADULT', n_adults))
 
+
+def preprocess_HTM4(df):
+    df['HTM4_N'] = df['HTM4'].apply(convert_HTM4_numeric)
+    df['HTM4_C'] = df['HTM4'].apply(convert_HTM4_categorical).astype('category')
+    return df
 
 def convert_HTM4_numeric(height):
     """Remains the valid height(cm) and convert empty to -1
@@ -133,6 +153,11 @@ def convert_HTM4_categorical(height):
     else:
         raise ValueError(invalid_col_val_msg('HTM4', height))
 
+
+def preprocess_MARIJAN1(df):
+    df['MARIJAN1_N'] = df['MARIJAN1'].apply(convert_MARIJAN1_numeric)
+    df['MARIJAN1_C'] = df['MARIJAN1'].apply(convert_MARIJAN1_categorical).astype('category')
+    return df
 
 def convert_MARIJAN1_numeric(times):
     """Convert the frequency of using marijuana.
