@@ -3,14 +3,14 @@ def invalid_col_val_msg(colname, val, additional=''):
 
 
 def preprocess_DIABAGE3(df):
-    df['DIABAGE3_numeric'] = df['DIABAGE3']
-    df.loc[(df['DIABAGE3'] > 97.5) | (df['DIABAGE3'].isna()), 'DIABAGE3_numeric'] = -1.
+    df['DIABAGE3_N'] = df['DIABAGE3']
+    df.loc[(df['DIABAGE3'] > 97.5) | (df['DIABAGE3'].isna()), 'DIABAGE3_N'] = -1.
     
-    df.loc[(df['DIABAGE3'] > 0.) & (df['DIABAGE3'] < 97.5), 'DIABAGE3_categorical'] = 1
-    df.loc[(df['DIABAGE3'] > 97.5) & (df['DIABAGE3'] < 98.5), 'DIABAGE3_categorical'] = 7
-    df.loc[(df['DIABAGE3'] > 98.5) & (df['DIABAGE3'] < 99.5), 'DIABAGE3_categorical'] = 9
-    df.loc[df['DIABAGE3'].isna(), 'DIABAGE3_categorical'] = 0
-    df['DIABAGE3_categorical'] = df['DIABAGE3_categorical'].astype('category')
+    df.loc[(df['DIABAGE3'] > 0.) & (df['DIABAGE3'] < 97.5), 'DIABAGE3_C'] = 1
+    df.loc[(df['DIABAGE3'] > 97.5) & (df['DIABAGE3'] < 98.5), 'DIABAGE3_C'] = 7
+    df.loc[(df['DIABAGE3'] > 98.5) & (df['DIABAGE3'] < 99.5), 'DIABAGE3_C'] = 9
+    df.loc[df['DIABAGE3'].isna(), 'DIABAGE3_C'] = 0
+    df['DIABAGE3_C'] = df['DIABAGE3_C'].astype('category')
     return df
 
 
@@ -168,7 +168,7 @@ def convert_MARIJAN1_categorical(times):
 def preprocess_HIVTSTD3_datetime(df):
     df['HIVTSTD3_month'] = df['HIVTSTD3'].apply(convert_HIVTSTD3_month).astype('category')
     df['HIVTSTD3_year']  = df['HIVTSTD3'].apply(convert_HIVTSTD3_year).astype('category')
-    df['HIVTSTD3_categorical'] = df['HIVTSTD3'].apply(convert_HIVTSTD3_categorical).astype('category')
+    df['HIVTSTD3_C'] = df['HIVTSTD3'].apply(convert_HIVTSTD3_categorical).astype('category')
     return df
 
 def check_and_convert_int(month_year):
