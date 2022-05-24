@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def invalid_col_val_msg(colname, val, additional=''):
     return f'Invalid value in {colname}: {val}{additional}'
 
