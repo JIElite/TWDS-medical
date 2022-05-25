@@ -101,7 +101,7 @@ def convert_CHILDREN_categorical(n_children):
 
 
 def preprocess_QSTLANG(df):
-    """Preprocess QSTLANG and drop the infrequent value.
+    """Preprocess QSTLANG
     
     In the original dataset, there are 387,478 questionnaire in English,
     and 14,479 in Spanish. Besides, only 1 questionnare is in neither Eng. nor Span.,
@@ -112,15 +112,13 @@ def preprocess_QSTLANG(df):
     - Spanish: 2
     Because they are already the categorical value, we don't need to do
     futher transformation
+
+    Note:
+        However, there is only one value that is not in [1, 2]
+        df.loc[~df['QSTLANG'].isin([1, 2])]['QSTLANG']
+        row index: 206759
+        It needs to be deleted in the future.
     """
-    
-    # There is only one value not in [1, 2] in 'QSTLANG' columns.
-    # Keep the frequent values in the dataframe is equivalent to dropping
-    # the infrequent one.
-    #
-    # df.loc[~df['QSTLANG'].isin([1, 2])]['QSTLANG']
-    # row index: 206759
-    df = df.loc[df['QSTLANG'].isin([1, 2])]
     df['QSTLANG'] = df['QSTLANG'].astype('category')
     return df
 
