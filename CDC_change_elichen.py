@@ -12,7 +12,7 @@ from prepocess import (RESERVED_COLS,
 
 
 RAW_DATA_PATH = './data/LLCP2020.csv'
-PREPROCESSED_DATA_PATH = './data/LLCP2020_elichen.csv'
+PREPROCESSED_DATA_PATH = './data/elichen.csv'
 preprocess_funcs = {'DIABAGE3': preprocess_DIABAGE3,
                     'FEETCHK3': preprocess_FEETCHK3,
                     'CHILDREN': preprocess_CHILDREN,
