@@ -1,6 +1,6 @@
 import pandas as pd
 
-from prepocess import (reserved_cols,
+from prepocess import (RESERVED_COLS,
                        preprocess_DIABAGE3,
                        preprocess_FEETCHK3,
                        preprocess_CHILDREN,
@@ -26,4 +26,4 @@ df = pd.read_csv(RAW_DATA_PATH)
 df_out = None
 for preprocess_func in preprocess_funcs.values():
     df_out = preprocess_func(df)
-df_out[reserved_cols].to_csv(PREPROCESSED_DATA_PATH)
+df_out[RESERVED_COLS].to_csv(PREPROCESSED_DATA_PATH)

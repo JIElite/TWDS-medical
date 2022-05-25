@@ -2,7 +2,7 @@ from calendar import month
 import numpy as np
 
 
-reserved_cols = ['DIABAGE3_N',
+RESERVED_COLS = ['DIABAGE3_N',
                  'DIABAGE3_C',
                  'FEETCHK3_N',
                  'FEETCHK3_C',
