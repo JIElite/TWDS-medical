@@ -1,4 +1,11 @@
-**/data
 **/.ipynb_checkpoints/
-**/__pycache__
+**/data/*.csv
+**/merged_data/*.csv
+**/__pycache__/
+**/temp/
+**/temp_future/
+**/*.pkl
+**/models/*.pkl
+**/models/*.pth
+**/.vscode/
 **/.DS_Store
