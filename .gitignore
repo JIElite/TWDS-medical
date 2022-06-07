@@ -9,3 +9,4 @@
 **/models/*.pth
 **/.vscode/
 **/.DS_Store
+**/*.zip
