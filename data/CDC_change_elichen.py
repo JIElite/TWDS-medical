@@ -11,8 +11,8 @@ from prepocess import (RESERVED_COLS,
                        preprocess_HIVTSTD3_datetime,)
 
 
-RAW_DATA_PATH = './data/LLCP2020.csv'
-PREPROCESSED_DATA_PATH = './data/elichen.csv'
+RAW_DATA_PATH = 'LLCP2020.csv'
+PREPROCESSED_DATA_PATH = 'elichen.csv'
 preprocess_funcs = {'DIABAGE3': preprocess_DIABAGE3,
                     'FEETCHK3': preprocess_FEETCHK3,
                     'CHILDREN': preprocess_CHILDREN,
