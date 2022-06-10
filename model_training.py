@@ -54,7 +54,7 @@ def train_model(model_class, model_params, exp_params, scoring_funcs,
     # Evaluate on the testing dataset
     # TODO Refactoring
     if eval_testing:
-        df_train = df_train.sample(frac=1)
+        df_train = df_train.sample(frac=1, random_state=exp_params.get('shuffle_seed', None))
         X_train, y_train = split_features_target(df_train, target=target)
         y_train = y_train.replace(2, 0)
 
@@ -63,6 +63,7 @@ def train_model(model_class, model_params, exp_params, scoring_funcs,
         model_test.fit(X_train, y_train)
 
         df_test = pd.read_csv(exp_params['testing_data'])
+        df_test = preprocess_IDATE(df_test)
         df_test = df_test.sample(
             frac=1, random_state=exp_params.get('shuffle_seed', None))
         X_test, y_test = split_features_target(df_test, target=target)
