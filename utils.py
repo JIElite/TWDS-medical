@@ -11,7 +11,7 @@ def _simple_save_model(
     if save_model_path:
         MODEL_PATH = save_model_path
     else:
-        MODEL_DIR = exp_params.get("./models/", ".")
+        MODEL_DIR = exp_params.get("model_dir", "./")
         MODEL_NAME = f'{exp_params["model_type"]}-{mode}-{timestamp}.pkl'
         MODEL_PATH = f"{MODEL_DIR}{MODEL_NAME}"
 
