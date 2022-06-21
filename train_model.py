@@ -39,6 +39,6 @@ if __name__ == "__main__":
         exp_params,
         scoring,
         use_mlflow=MLFLOW,
-        save_model=SAVE_MODEL,
+        save_trained_model=SAVE_MODEL,
         eval_testing=EVAL_TESTING,
     )
