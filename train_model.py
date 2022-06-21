@@ -5,7 +5,8 @@ from model_training import train_model
 
 
 MLFLOW = True
-
+SAVE_MODEL = True
+EVAL_TESTING = True
 
 if __name__ == "__main__":
     exp_params = {
@@ -37,6 +38,6 @@ if __name__ == "__main__":
         exp_params,
         scoring,
         use_mlflow=MLFLOW,
-        save_model=True,
-        eval_testing=True,
+        save_model=SAVE_MODEL,
+        eval_testing=EVAL_TESTING,
     )
