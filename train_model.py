@@ -20,6 +20,7 @@ if __name__ == "__main__":
         "val_size": 0.1,
         "target": "ADDEPEV3",
         "prob_threshold": 0.3,
+        "model_dir": "./models/",
     }
     model_params = {
         "n_estimators": 100,
