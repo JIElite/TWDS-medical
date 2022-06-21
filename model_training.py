@@ -125,6 +125,80 @@ def train_model(
         mlflow.end_run()
 
 
+def train_model_cv(
+    model_class,
+    model_params,
+    exp_params,
+    cv_params,
+    scoring_funcs,
+    use_mlflow=False,
+    eval_testing=False,
+    save_testing_model=False,
+    save_model_path=None,
+):
+    df_train = pd.read_csv(exp_params["training_data"])
+    df_train = df_train.sample(
+        frac=1, random_state=exp_params.get("shuffle_seed", None)
+    )
+    df_train = preprocess_IDATE(df_train)
+
+    target = exp_params["target"]
+    X_train, y_train = split_features_target(df_train, target=target)
+    y_train = y_train.replace(2, 0)
+
+    if use_mlflow:
+        import mlflow
+
+        environment_setup()
+        mlflow.start_run(run_name=exp_params["run_name"])
+        mlflow.log_params(exp_params)
+        mlflow.log_params(model_params)
+        # Log entry point script
+        if "script" in exp_params:
+            mlflow.log_artifact(exp_params["script"])
+
+    model = model_class(**model_params)
+    scores = cross_validate(
+        model,
+        X_train,
+        y_train,
+        **cv_params,
+    )
+    scores = {
+        k: v
+        for k, v in scores.items()
+        if str.startswith(k, "train") or str.startswith(k, "test")
+    }
+    # The sklearn cross_validate only support string-like scoring,
+    # when evaluating multiple metrics, so we need to convert the
+    # result from cross_validate to meet our logging format.
+    scores = convert_cv_scores_to_logging_scores(scores)
+
+    if eval_testing:
+        testing_scores, model_testing = train_and_eval_testing_set(
+            model_class, model_params, exp_params, scoring_funcs, use_mlflow
+        )
+        scores.update(testing_scores)
+
+        if save_testing_model:
+            save_model(
+                model_testing,
+                mode="testing",
+                model_path=save_model_path,
+                exp_params=exp_params,
+                use_mlflow=use_mlflow,
+                verbose=True,
+            )
+
+    # Show performance
+    print(scores)
+    if use_mlflow:
+        mlflow.log_metrics(scores)
+
+    if use_mlflow:
+        mlflow.end_run()
+
+
 def train_and_eval_testing_set(
     model_class, model_params, exp_params, scoring_funcs, use_mlflow
 ):
