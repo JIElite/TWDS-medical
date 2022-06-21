@@ -8,6 +8,7 @@ MLFLOW = True
 SAVE_MODEL = True
 EVAL_TESTING = True
 
+
 if __name__ == "__main__":
     exp_params = {
         "run_name": "Train Random Forest",
