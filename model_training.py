@@ -14,14 +14,41 @@ class BaseTrainer:
     def __init__(self):
         pass
 
-    def _prepare_data(self, mode):
+    def _prepare_data(self, data_mode):
         pass
 
     def run(self):
         pass
 
 
-class Holdout_Trainer(BaseTrainer):
+class MedicalProjectTrainer(BaseTrainer):
+    def __init__(self):
+        pass
+
+    def _prepare_data(self, data_mode="training_data"):
+        df_train = pd.read_csv(self.exp_params[data_mode])
+        df_train = df_train.sample(
+            frac=1, random_state=self.exp_params.get("shuffle_seed", None)
+        )
+        df_train = preprocess_IDATE(df_train)
+        X_train, y_train = split_features_target(
+            df_train, target=self.exp_params["target"]
+        )
+        y_train = y_train.replace(2, 0)
+        return X_train, y_train
+
+    def eval_testing_data(self, X_train, y_train, X_test, y_test):
+        assert self.evaluator
+        model_test = self.model_class(**self.model_params)
+        model_test.fit(X_train, y_train)
+        scores = self.evaluator.evaluate(model_test, X_test, y_test, prefix="test-")
+        self.evaluator.eval_roc_auc_display(
+            model_test, X_test, y_test, fig_path="test-auc.png"
+        )
+        return scores, model_test
+
+
+class Holdout_Trainer(MedicalProjectTrainer):
     def __init__(
         self,
         model_class,
@@ -55,20 +82,10 @@ class Holdout_Trainer(BaseTrainer):
             if "script" in exp_params:
                 mlflow.cv_params.scoring_funcslog_artifact(exp_params["script"])
 
-    def _prepare_data(self, mode="training_data"):
-        df_train = pd.read_csv(self.exp_params[mode])
-        df_train = df_train.sample(
-            frac=1, random_state=self.exp_params.get("shuffle_seed", None)
-        )
-        df_train = preprocess_IDATE(df_train)
-        X_train, y_train = split_features_target(
-            df_train, target=self.exp_params["target"]
-        )
-        y_train = y_train.replace(2, 0)
-        return X_train, y_train
-
     def run(self):
-        X_train_original, y_train_original = self._prepare_data(mode="training_data")
+        X_train_original, y_train_original = self._prepare_data(
+            data_mode="training_data"
+        )
         X_train, X_val, y_train, y_val = train_test_split(
             X_train_original,
             y_train_original,
@@ -96,7 +113,7 @@ class Holdout_Trainer(BaseTrainer):
         scores.update(val_scores)
 
         if self.eval_testing:
-            X_test, y_test = self._prepare_data(mode="testing_data")
+            X_test, y_test = self._prepare_data(data_mode="testing_data")
             testing_scores, model_testing = self.eval_testing_data(
                 X_train_original, y_train_original, X_test, y_test
             )
@@ -122,18 +139,8 @@ class Holdout_Trainer(BaseTrainer):
         model.fit(X_train, y_train)
         return model
 
-    def eval_testing_data(self, X_train, y_train, X_test, y_test):
-        assert self.evaluator
-        model_test = self.model_class(**self.model_params)
-        model_test.fit(X_train, y_train)
-        scores = self.evaluator.evaluate(model_test, X_test, y_test, prefix="test-")
-        self.evaluator.eval_roc_auc_display(
-            model_test, X_test, y_test, fig_path="test-auc.png"
-        )
-        return scores, model_test
 
-
-class CVTrainer:
+class CVTrainer(MedicalProjectTrainer):
     def __init__(
         self,
         model_class,
@@ -193,17 +200,6 @@ class CVTrainer:
             mlflow.end_run()
         print(scores)
 
-    def _prepare_data(self, data_mode="training_data"):
-        df_train = pd.read_csv(self.exp_params[data_mode])
-        df_train = df_train.sample(
-            frac=1, random_state=self.exp_params.get("shuffle_seed", None)
-        )
-        df_train = preprocess_IDATE(df_train)
-        target = self.exp_params["target"]
-        X, y = split_features_target(df_train, target=target)
-        y = y.replace(2, 0)
-        return X, y
-
     def train(self, X_train, y_train):
         self.model = self.model_class(**self.model_params)
         scores = cross_validate(self.model, X_train, y_train, **self.cv_params)
@@ -218,13 +214,3 @@ class CVTrainer:
         # result from cross_validate to meet our logging format.True
         scores = convert_cv_scores_to_logging_scores(scores)
         return scores
-
-    def eval_testing_data(self, X_train, y_train, X_test, y_test):
-        assert self.evaluator
-        model_test = self.model_class(**self.model_params)
-        model_test.fit(X_train, y_train)
-        scores = self.evaluator.evaluate(model_test, X_test, y_test, prefix="test-")
-        self.evaluator.eval_roc_auc_display(
-            model_test, X_test, y_test, fig_path="test-auc.png"
-        )
-        return scores, model_test
