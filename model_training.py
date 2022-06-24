@@ -1,6 +1,8 @@
 import pandas as pd
+import lightgbm as lgb
 import mlflow
 from sklearn.model_selection import train_test_split, cross_validate
+import matplotlib.pyplot as plt
 
 from preprocessing import split_features_target, preprocess_IDATE
 from mlflow_utils import environment_setup
@@ -129,6 +131,8 @@ class Holdout_Trainer(MedicalProjectTrainer):
                     verbose=True,
                 )
 
+        self._callback(model)
+
         print(scores)
         if self.use_mlflow:
             mlflow.log_metrics(scores)
@@ -138,6 +142,9 @@ class Holdout_Trainer(MedicalProjectTrainer):
         model = self.model_class(**self.model_params)
         model.fit(X_train, y_train)
         return model
+
+    def _callback(self, model):
+        pass
 
 
 class CVTrainer(MedicalProjectTrainer):
@@ -214,3 +221,30 @@ class CVTrainer(MedicalProjectTrainer):
         # result from cross_validate to meet our logging format.True
         scores = convert_cv_scores_to_logging_scores(scores)
         return scores
+
+
+class LightGBMTrainer(Holdout_Trainer):
+    def _prepare_data(self, data_mode):
+        df = pd.read_csv(self.exp_params[data_mode])
+        df = df.sample(frac=1, random_state=self.exp_params.get("shuffle_seed", None))
+        df = preprocess_IDATE(df)
+
+        # FIXME workaround to avoid:
+        # lightgbm.basic.LightGBMError: Do not support special JSON characters in feature name
+        import re
+
+        df = df.rename(columns=lambda x: re.sub("[^A-Za-z0-9_]+", "", x))
+
+        X, y = split_features_target(df, target=self.exp_params["target"])
+        y = y.replace(2, 0)
+        return X, y
+
+    def train(self, X_train, y_train):
+        model = self.model_class(**self.model_params).fit(X_train, y_train)
+        return model
+
+    def _callback(self, model):
+        ax = lgb.plot_importance(model, max_num_features=25)
+        plt.savefig("importance.png")
+        if self.use_mlflow:
+            mlflow.log_artifact("importance.png")
