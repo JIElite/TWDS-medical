@@ -180,6 +180,7 @@ class Trainer:
             eval_testing_scores, model_testing = self.eval_testing_data(
                 X_train, y_train, X_test, y_test
             )
+            scores.update(eval_testing_scores)
             if self.save_testing_model:
                 save_model(
                     model_testing,
@@ -189,14 +190,10 @@ class Trainer:
                     use_mlflow=self.use_mlflow,
                     verbose=True,
                 )
-        if self.use_mlflow:
-            mlflow.log_metrics(eval_testing_scores)
 
         if self.use_mlflow:
             mlflow.end_run()
-
-        total_scores = {**scores, **eval_testing_scores}
-        print(total_scores)
+        print(scores)
 
     def _prepare_data(self, data_mode="training_data"):
         df_train = pd.read_csv(self.exp_params[data_mode])
