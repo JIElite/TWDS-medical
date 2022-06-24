@@ -172,8 +172,6 @@ class Trainer:
         """Record the training flow."""
         X_train, y_train = self._prepare_data(data_mode="training_data")
         scores = self.train(X_train, y_train)
-        if self.use_mlflow:
-            mlflow.log_metrics(scores)
 
         if self.eval_testing:
             X_test, y_test = self._prepare_data(data_mode="testing_data")
