@@ -31,7 +31,7 @@ def save_model(model, mode, model_path, exp_params, use_mlflow=False, verbose=Fa
         verbose=verbose,
     )
     if use_mlflow:
-        mlflow.log_param("model_path", model_path)
+        mlflow.log_param(f"model_path_{mode}", model_path)
         mlflow.log_artifact(model_path)
 
     return model_path
