@@ -1,6 +1,9 @@
 import logging
 
+import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, recall_score, precision_score, roc_auc_score
+from sklearn.metrics import RocCurveDisplay
+import mlflow
 
 
 scoring_maps = {
@@ -16,6 +19,45 @@ scoring_reverse_maps = {
     "precision": precision_score.__name__,
     "roc_auc": roc_auc_score.__name__,
 }
+
+
+class Evaluator:
+    def __init__(self, scoring_funcs, prob_threshold=None, use_mlflow=False):
+        self.scoring_funcs = scoring_funcs
+        self.prob_threshold = prob_threshold
+        self.use_mlflow = use_mlflow
+
+    def evaluate(self, model, X, y, prefix=""):
+        scores = self._evaluate_builtin_metric(
+            model,
+            X,
+            y,
+            index_prefix=prefix,
+        )
+        if self.use_mlflow:
+            mlflow.log_metrics(scores)
+
+        return scores
+
+    def eval_roc_auc_display(self, estimator, X, y, fig_path):
+        RocCurveDisplay.from_estimator(estimator, X, y)
+        plt.savefig(fig_path)
+
+        if self.use_mlflow:
+            mlflow.log_artifact(fig_path)
+
+    def _evaluate_builtin_metric(self, model, X, y, index_prefix=""):
+        scores = {}
+        y_pred = None
+        if self.prob_threshold:
+            y_pred = model.predict_proba(X)[:, 1] > self.prob_threshold
+        else:
+            y_pred = model.predict(X)
+
+        for scoring_func in self.scoring_funcs:
+            scoring_func_name = scoring_func.__name__
+            scores[index_prefix + scoring_func_name] = scoring_func(y, y_pred)
+        return scores
 
 
 def rebuild_cv_metric_name(cv_score_metric, eval_mode):
@@ -48,32 +90,3 @@ def convert_cv_scores_to_logging_scores(cv_scores):
         logging_scores[metric_name] = float(cv_score.mean())
 
     return logging_scores
-
-
-def eval_roc_auc_display(estimator, X, y, fig_path, use_mlflow=False):
-    import matplotlib.pyplot as plt
-    from sklearn.metrics import RocCurveDisplay
-
-    RocCurveDisplay.from_estimator(estimator, X, y)
-    plt.savefig(fig_path)
-
-    if use_mlflow:
-        import mlflow
-
-        mlflow.log_artifact(fig_path)
-
-
-def evaluate_builtin_metric(
-    model, X, y, scoring_funcs, prob_threshold=None, index_predix=""
-):
-    scores = {}
-    y_pred = None
-    if prob_threshold:
-        y_pred = model.predict_proba(X)[:, 1] > prob_threshold
-    else:
-        y_pred = model.predict(X)
-
-    for scoring_func in scoring_funcs:
-        scoring_func_name = scoring_func.__name__
-        scores[index_predix + scoring_func_name] = scoring_func(y, y_pred)
-    return scores

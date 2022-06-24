@@ -2,7 +2,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, recall_score, precision_score, roc_auc_score
 
 from model_training import Holdout_Trainer
-
+from eval import Evaluator
 
 MLFLOW = True
 SAVE_MODEL = True
@@ -30,7 +30,11 @@ if __name__ == "__main__":
     }
     model_class = RandomForestClassifier
     scoring = (accuracy_score, recall_score, precision_score, roc_auc_score)
-
+    evaluator = Evaluator(
+        scoring,
+        prob_threshold=exp_params.get("prob_threshold", None),
+        use_mlflow=MLFLOW,
+    )
     # NOTICE: We should only evalute the testing set performance once
     # use eval_testing=False for tuning hyperparameters
     # use eval_testing=True for reporting final performance for a specfic model
@@ -39,6 +43,7 @@ if __name__ == "__main__":
         model_params=model_params,
         exp_params=exp_params,
         scoring_funcs=scoring,
+        evaluator=evaluator,
         eval_testing=EVAL_TESTING,
         save_trained_model=SAVE_MODEL,
         save_testing_model=SAVE_MODEL,

@@ -2,11 +2,11 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, recall_score, precision_score, roc_auc_score
 
 from model_training import Trainer
-from eval import scoring_maps
+from eval import scoring_maps, Evaluator
 
 
 MLFLOW = True
-EVAL_TESTING = False
+EVAL_TESTING = True
 
 
 if __name__ == "__main__":
@@ -29,6 +29,11 @@ if __name__ == "__main__":
     }
     scoring_funcs = (accuracy_score, recall_score, precision_score, roc_auc_score)
     scoring = [scoring_maps[metric_func] for metric_func in scoring_funcs]
+    evaluator = Evaluator(
+        scoring_funcs,
+        prob_threshold=exp_params.get("prob_threshold", None),
+        use_mlflow=MLFLOW,
+    )
     cv_params = {
         "n_jobs": 16,
         "cv": 5,
@@ -45,6 +50,7 @@ if __name__ == "__main__":
         cv_params=cv_params,
         scoring_funcs=scoring_funcs,
         eval_testing=EVAL_TESTING,
+        evaluator=evaluator,
         use_mlflow=MLFLOW,
     )
     trainer.run()
