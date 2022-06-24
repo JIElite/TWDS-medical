@@ -1,7 +1,7 @@
 from lightgbm import LGBMClassifier
 from sklearn.metrics import accuracy_score, recall_score, precision_score, roc_auc_score
 
-from model_training import LightGBMTrainer
+from model_training import LightGBMTrainer, LightGBMCVTrainer
 from eval import Evaluator, scoring_maps
 
 MLFLOW = True
@@ -32,14 +32,21 @@ if __name__ == "__main__":
     scoring_funcs = (accuracy_score, recall_score, precision_score, roc_auc_score)
     scoring = [scoring_maps[metric_func] for metric_func in scoring_funcs]
     evaluator = Evaluator(scoring_funcs=scoring_funcs, use_mlflow=MLFLOW)
-
+    cv_params = {
+        "n_jobs": 16,
+        "cv": 5,
+        "scoring": scoring,
+        "return_train_score": True,
+        "verbose": True,
+    }
     # NOTICE: We should only evalute the testing set performance once
     # use eval_testing=False for tuning hyperparameters
     # use eval_testing=True for reporting final performance for a specfic model
-    trainer = LightGBMTrainer(
+    trainer = LightGBMCVTrainer(
         model_class,
         model_params,
         exp_params=exp_params,
+        cv_params=cv_params,
         scoring_funcs=scoring_funcs,
         evaluator=evaluator,
         eval_testing=EVAL_TESTING,

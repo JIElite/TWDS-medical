@@ -248,3 +248,20 @@ class LightGBMTrainer(Holdout_Trainer):
         plt.savefig("importance.png")
         if self.use_mlflow:
             mlflow.log_artifact("importance.png")
+
+
+class LightGBMCVTrainer(CVTrainer):
+    def _prepare_data(self, data_mode):
+        df = pd.read_csv(self.exp_params[data_mode])
+        df = df.sample(frac=1, random_state=self.exp_params.get("shuffle_seed", None))
+        df = preprocess_IDATE(df)
+
+        # FIXME workaround to avoid:
+        # lightgbm.basic.LightGBMError: Do not support special JSON characters in feature name
+        import re
+
+        df = df.rename(columns=lambda x: re.sub("[^A-Za-z0-9_]+", "", x))
+
+        X, y = split_features_target(df, target=self.exp_params["target"])
+        y = y.replace(2, 0)
+        return X, y
