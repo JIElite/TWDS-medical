@@ -133,7 +133,7 @@ class Holdout_Trainer(BaseTrainer):
         return scores, model_test
 
 
-class Trainer:
+class CVTrainer:
     def __init__(
         self,
         model_class,

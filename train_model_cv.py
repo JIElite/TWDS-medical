@@ -1,12 +1,12 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, recall_score, precision_score, roc_auc_score
 
-from model_training import Trainer
+from model_training import CVTrainer
 from eval import scoring_maps, Evaluator
 
 
 MLFLOW = True
-EVAL_TESTING = True
+EVAL_TESTING = False
 
 
 if __name__ == "__main__":
@@ -36,21 +36,20 @@ if __name__ == "__main__":
     )
     cv_params = {
         "n_jobs": 16,
-        "cv": 5,
+        "cv": 2,
         "scoring": scoring,
         "return_train_score": True,
         "verbose": True,
     }
     model_class = RandomForestClassifier
 
-    trainer = Trainer(
+    trainer = CVTrainer(
         model_class=model_class,
         model_params=model_params,
         exp_params=exp_params,
         cv_params=cv_params,
         scoring_funcs=scoring_funcs,
         eval_testing=EVAL_TESTING,
-        evaluator=evaluator,
         use_mlflow=MLFLOW,
     )
     trainer.run()
