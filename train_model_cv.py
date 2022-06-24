@@ -1,7 +1,7 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, recall_score, precision_score, roc_auc_score
 
-from model_training import train_model_cv
+from model_training import Trainer
 from eval import scoring_maps
 
 
@@ -38,15 +38,13 @@ if __name__ == "__main__":
     }
     model_class = RandomForestClassifier
 
-    # NOTICE: We should only evalute the testing set performance once
-    # use eval_testing=False for tuning hyperparameters
-    # use eval_testing=True for reporting final performance for a specfic model
-    train_model_cv(
-        model_class,
-        model_params,
-        exp_params,
-        cv_params,
-        scoring_funcs,
-        use_mlflow=MLFLOW,
+    trainer = Trainer(
+        model_class=model_class,
+        model_params=model_params,
+        exp_params=exp_params,
+        cv_params=cv_params,
+        scoring_funcs=scoring_funcs,
         eval_testing=EVAL_TESTING,
+        use_mlflow=MLFLOW,
     )
+    trainer.run()
