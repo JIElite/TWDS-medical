@@ -56,7 +56,12 @@ class Evaluator:
 
         for scoring_func in self.scoring_funcs:
             scoring_func_name = scoring_func.__name__
-            scores[index_prefix + scoring_func_name] = scoring_func(y, y_pred)
+            if scoring_func == roc_auc_score:
+                scores[index_prefix + scoring_func_name] = scoring_func(
+                    y, model.predict_proba(X)[:, 1]
+                )
+            else:
+                scores[index_prefix + scoring_func_name] = scoring_func(y, y_pred)
         return scores
 
 
