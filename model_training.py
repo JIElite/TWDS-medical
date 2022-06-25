@@ -205,6 +205,7 @@ class CVTrainer(MedicalProjectTrainer):
                 )
 
         if self.use_mlflow:
+            mlflow.log_metrics(scores)
             mlflow.end_run()
         print(scores)
 
