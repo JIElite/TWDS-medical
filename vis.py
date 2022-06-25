@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import shap
 import numpy as np
 import mlflow
 from sklearn.metrics import PrecisionRecallDisplay
+import lightgbm as lgb
 
 
 def plot_rf_importance(model, feature_names, n_features=25, use_mlflow=False):
@@ -31,6 +33,14 @@ def plot_rf_importance(model, feature_names, n_features=25, use_mlflow=False):
         mlflow.log_artifact("feature-importances.png")
 
 
+def plot_lgbm_importances(model, n_features=25, use_mlflow=False):
+    ax = lgb.plot_importance(model, max_num_features=n_features)
+    plt.savefig("importance.png")
+    plt.close()
+    if use_mlflow:
+        mlflow.log_artifact("importance.png")
+
+
 def plot_precision_recall_curve(model, X, y, filename=None, use_mlflow=False):
     display = PrecisionRecallDisplay.from_estimator(
         model, X, y, name="Precision-Recall-Curve"
@@ -40,3 +50,13 @@ def plot_precision_recall_curve(model, X, y, filename=None, use_mlflow=False):
         plt.close()
         if use_mlflow:
             mlflow.log_artifact(filename)
+
+
+def plot_shap_summary(model, X, filename, use_mlflow=False):
+    explainer = shap.Explainer(model)
+    shap_values = explainer.shap_values(X)
+    shap.summary_plot(shap_values, X)
+    plt.savefig(filename)
+    plt.close()
+    if use_mlflow:
+        mlflow.log_artifact(filename)
