@@ -7,7 +7,7 @@ from eval import Evaluator
 
 MLFLOW = True
 SAVE_MODEL = True
-EVAL_TESTING = True
+EVAL_TESTING = False
 
 
 if __name__ == "__main__":
