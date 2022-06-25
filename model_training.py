@@ -83,7 +83,7 @@ class HoldoutTrainer(MedicalProjectTrainer):
             mlflow.log_params(model_params)
             # Log entry point script
             if "script" in exp_params:
-                mlflow.cv_params.scoring_funcslog_artifact(exp_params["script"])
+                mlflow.log_artifact(exp_params["script"])
 
     def run(self):
         X_train_original, y_train_original = self._prepare_data(
