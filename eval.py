@@ -1,7 +1,13 @@
 import logging
 
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score, recall_score, precision_score, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    recall_score,
+    precision_score,
+    roc_auc_score,
+    f1_score,
+)
 from sklearn.metrics import RocCurveDisplay
 import mlflow
 
@@ -11,6 +17,7 @@ scoring_maps = {
     recall_score: "recall",
     precision_score: "precision",
     roc_auc_score: "roc_auc",
+    f1_score: "f1",
 }
 
 scoring_reverse_maps = {
@@ -18,6 +25,7 @@ scoring_reverse_maps = {
     "recall": recall_score.__name__,
     "precision": precision_score.__name__,
     "roc_auc": roc_auc_score.__name__,
+    "f1": f1_score.__name__,
 }
 
 
@@ -49,6 +57,7 @@ class Evaluator:
     def _evaluate_builtin_metric(self, model, X, y, index_prefix=""):
         scores = {}
         y_pred = None
+
         if self.prob_threshold:
             y_pred = model.predict_proba(X)[:, 1] > self.prob_threshold
         else:
