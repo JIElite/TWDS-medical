@@ -37,5 +37,6 @@ def plot_precision_recall_curve(model, X, y, filename=None, use_mlflow=False):
     )
     if filename:
         plt.savefig(filename)
+        plt.close()
         if use_mlflow:
             mlflow.log_artifact(filename)
