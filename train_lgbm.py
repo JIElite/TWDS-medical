@@ -13,13 +13,13 @@ if __name__ == "__main__":
     exp_params = {
         "run_name": "LGBM",
         "model_type": LGBMClassifier.__name__,
-        "training_data": "./merged_data/brfss_combine_train.csv",
-        "testing_data": "./merged_data/brfss_combine_test.csv",
+        "training_data": "./merged_data/brfss_combine_train_v2.csv",
+        "testing_data": "./merged_data/brfss_combine_test_v2.csv",
         "shuffle_seed": 42,
         "train_tests_split_seed": 42,
         "val_size": 0.1,
         "target": "ADDEPEV3",
-        # "prob_threshold": 0.3,
+        "prob_threshold": 0.3,
         "model_dir": "./models/",
     }
     model_params = {
