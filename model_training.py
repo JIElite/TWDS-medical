@@ -8,6 +8,7 @@ from preprocessing import split_features_target, preprocess_IDATE
 from mlflow_utils import environment_setup
 from eval import convert_cv_scores_to_logging_scores
 from utils import save_model
+from vis import plot_rf_importance
 
 
 class BaseTrainer:
@@ -131,7 +132,7 @@ class Holdout_Trainer(MedicalProjectTrainer):
                     verbose=True,
                 )
 
-        self._callback(model)
+        self._after_training_hook(model, X_train.columns)
 
         print(scores)
         if self.use_mlflow:
@@ -143,7 +144,7 @@ class Holdout_Trainer(MedicalProjectTrainer):
         model.fit(X_train, y_train)
         return model
 
-    def _callback(self, model):
+    def _after_training_hook(self, *args, **kwargs):
         pass
 
 
@@ -223,6 +224,11 @@ class CVTrainer(MedicalProjectTrainer):
         return scores
 
 
+class RandomForestTrainer(Holdout_Trainer):
+    def _after_training_hook(self, model, feature_names):
+        plot_rf_importance(model, feature_names, use_mlflow=self.use_mlflow)
+
+
 class LightGBMTrainer(Holdout_Trainer):
     def _prepare_data(self, data_mode):
         df = pd.read_csv(self.exp_params[data_mode])
@@ -239,11 +245,8 @@ class LightGBMTrainer(Holdout_Trainer):
         y = y.replace(2, 0)
         return X, y
 
-    def train(self, X_train, y_train):
-        model = self.model_class(**self.model_params).fit(X_train, y_train)
-        return model
-
-    def _callback(self, model):
+    def _after_training_hook(self, *args):
+        model = args[0]
         ax = lgb.plot_importance(model, max_num_features=25)
         plt.savefig("importance.png")
         if self.use_mlflow:
