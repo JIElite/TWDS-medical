@@ -270,11 +270,6 @@ class LightGBMTrainer(LightGBMDataPreparer, HoldoutTrainer):
             use_mlflow=self.use_mlflow,
         )
 
-    def train(self, X_train, y_train):
-        model = lgb.LGBMClassifier(**self.model_params)
-        model.fit(X_train, y_train)
-        return model
-
 
 class LightGBMCVTrainer(LightGBMDataPreparer, CVTrainer):
     pass
