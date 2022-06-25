@@ -12,6 +12,9 @@ def plot_rf_importance(model, feature_names, n_features=25, use_mlflow=False):
         high cardinality features (many unique values).
         See sklearn.inspection.permutation_importance as an alternative.
         ref. https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html#sklearn.ensemble.RandomForestClassifier.feature_importances_
+
+        TODO : use sklearn.inspection.permutation_importance
+        TODO : use sns.barplot
     """
     feature_importances = model.feature_importances_.reshape(-1, 1)
     feature_names_array = feature_names.array.reshape(-1, 1)
@@ -25,7 +28,3 @@ def plot_rf_importance(model, feature_names, n_features=25, use_mlflow=False):
 
     if use_mlflow:
         mlflow.log_artifact("feature-importances.png")
-
-    # TODO
-    # sns.barplot(x=feature_names, y=model.feature_importances_, orient="h")
-    # plt.show()
