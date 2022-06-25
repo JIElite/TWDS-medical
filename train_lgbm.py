@@ -42,15 +42,24 @@ if __name__ == "__main__":
     # NOTICE: We should only evalute the testing set performance once
     # use eval_testing=False for tuning hyperparameters
     # use eval_testing=True for reporting final performance for a specfic model
-    trainer = LightGBMCVTrainer(
+    trainer = LightGBMTrainer(
         model_class,
         model_params,
         exp_params=exp_params,
-        cv_params=cv_params,
         scoring_funcs=scoring_funcs,
         evaluator=evaluator,
-        eval_testing=EVAL_TESTING,
+        save_trained_model=SAVE_MODEL,
         use_mlflow=MLFLOW,
-        save_testing_model=SAVE_MODEL,
     )
+    # trainer = LightGBMCVTrainer(
+    #     model_class,
+    #     model_params,
+    #     exp_params=exp_params,
+    #     cv_params=cv_params,
+    #     scoring_funcs=scoring_funcs,
+    #     evaluator=evaluator,
+    #     eval_testing=EVAL_TESTING,
+    #     use_mlflow=MLFLOW,
+    #     save_testing_model=SAVE_MODEL,
+    # )
     trainer.run()
