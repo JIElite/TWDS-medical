@@ -234,12 +234,7 @@ class LightGBMDataPreparer:
         df = pd.read_csv(self.exp_params[data_mode])
         df = df.sample(frac=1, random_state=self.exp_params.get("shuffle_seed", None))
         df = preprocess_IDATE(df)
-
-        # FIXME workaround to avoid:
-        # lightgbm.basic.LightGBMError: Do not support special JSON characters in feature name
-        import re
-
-        df = df.rename(columns=lambda x: re.sub("[^A-Za-z0-9_]+", "", x))
+        df.drop(columns=["Unnamed: 0"], inplace=True)
 
         X, y = split_features_target(df, target=self.exp_params["target"])
         y = y.replace(2, 0)
