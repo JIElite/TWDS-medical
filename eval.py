@@ -42,7 +42,7 @@ class Evaluator:
     def eval_roc_auc_display(self, estimator, X, y, fig_path):
         RocCurveDisplay.from_estimator(estimator, X, y)
         plt.savefig(fig_path)
-
+        plt.close()
         if self.use_mlflow:
             mlflow.log_artifact(fig_path)
 
