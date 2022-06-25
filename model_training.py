@@ -51,7 +51,7 @@ class MedicalProjectTrainer(BaseTrainer):
         return scores, model_test
 
 
-class Holdout_Trainer(MedicalProjectTrainer):
+class HoldoutTrainer(MedicalProjectTrainer):
     def __init__(
         self,
         model_class,
@@ -224,12 +224,12 @@ class CVTrainer(MedicalProjectTrainer):
         return scores
 
 
-class RandomForestTrainer(Holdout_Trainer):
+class RandomForestTrainer(HoldoutTrainer):
     def _after_training_hook(self, model, feature_names):
         plot_rf_importance(model, feature_names, use_mlflow=self.use_mlflow)
 
 
-class LightGBMTrainer(Holdout_Trainer):
+class LightGBMTrainer(HoldoutTrainer):
     def _prepare_data(self, data_mode):
         df = pd.read_csv(self.exp_params[data_mode])
         df = df.sample(frac=1, random_state=self.exp_params.get("shuffle_seed", None))
