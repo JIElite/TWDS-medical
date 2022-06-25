@@ -8,7 +8,7 @@ from preprocessing import split_features_target, preprocess_IDATE
 from mlflow_utils import environment_setup
 from eval import convert_cv_scores_to_logging_scores
 from utils import save_model
-from vis import plot_rf_importance
+from vis import plot_rf_importance, plot_precision_recall_curve
 
 
 class BaseTrainer:
@@ -132,7 +132,7 @@ class HoldoutTrainer(MedicalProjectTrainer):
                     verbose=True,
                 )
 
-        self._after_training_hook(model, X_train.columns)
+        self._after_training_hook(model, X_train, y_train, X_val, y_val)
 
         print(scores)
         if self.use_mlflow:
@@ -226,8 +226,12 @@ class CVTrainer(MedicalProjectTrainer):
 
 
 class RandomForestTrainer(HoldoutTrainer):
-    def _after_training_hook(self, model, feature_names):
-        plot_rf_importance(model, feature_names, use_mlflow=self.use_mlflow)
+    def _after_training_hook(self, *args):
+        model = args[0]
+        X_train = args[1]
+        plot_rf_importance(
+            model, feature_names=X_train.columns, use_mlflow=self.use_mlflow
+        )
 
 
 class LightGBMDataPreparer:
@@ -245,10 +249,26 @@ class LightGBMDataPreparer:
 class LightGBMTrainer(LightGBMDataPreparer, HoldoutTrainer):
     def _after_training_hook(self, *args):
         model = args[0]
+        X_val = args[3]
+        y_val = args[4]
+
         ax = lgb.plot_importance(model, max_num_features=25)
         plt.savefig("importance.png")
         if self.use_mlflow:
             mlflow.log_artifact("importance.png")
+
+        plot_precision_recall_curve(
+            model,
+            X_val,
+            y_val,
+            filename="lgbm-val-precision-recall.png",
+            use_mlflow=self.use_mlflow,
+        )
+
+    def train(self, X_train, y_train):
+        model = lgb.LGBMClassifier(**self.model_params)
+        model.fit(X_train, y_train)
+        return model
 
 
 class LightGBMCVTrainer(LightGBMDataPreparer, CVTrainer):

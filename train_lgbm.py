@@ -1,5 +1,11 @@
 from lightgbm import LGBMClassifier
-from sklearn.metrics import accuracy_score, recall_score, precision_score, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    recall_score,
+    precision_score,
+    roc_auc_score,
+    f1_score,
+)
 
 from model_training import LightGBMTrainer, LightGBMCVTrainer
 from eval import Evaluator, scoring_maps
@@ -19,18 +25,29 @@ if __name__ == "__main__":
         "train_tests_split_seed": 42,
         "val_size": 0.1,
         "target": "ADDEPEV3",
-        "prob_threshold": 0.3,
+        "prob_threshold": 0.5,
         "model_dir": "./models/",
     }
     model_params = {
         "n_estimators": 100,
-        "n_jobs": 16,
-        "max_depth": 20,
+        "n_jobs": 24,
+        "max_depth": 31,
         "objective": "binary",
+        "num_leaves": 30,
     }
     model_class = LGBMClassifier
-    scoring_funcs = (accuracy_score, recall_score, precision_score, roc_auc_score)
-    evaluator = Evaluator(scoring_funcs=scoring_funcs, use_mlflow=MLFLOW)
+    scoring_funcs = (
+        accuracy_score,
+        recall_score,
+        precision_score,
+        roc_auc_score,
+        f1_score,
+    )
+    evaluator = Evaluator(
+        scoring_funcs=scoring_funcs,
+        prob_threshold=exp_params["prob_threshold"],
+        use_mlflow=MLFLOW,
+    )
     # NOTICE: We should only evalute the testing set performance once
     # use eval_testing=False for tuning hyperparameters
     # use eval_testing=True for reporting final performance for a specfic model

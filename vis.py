@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import mlflow
+from sklearn.metrics import PrecisionRecallDisplay
 
 
 def plot_rf_importance(model, feature_names, n_features=25, use_mlflow=False):
@@ -28,3 +29,13 @@ def plot_rf_importance(model, feature_names, n_features=25, use_mlflow=False):
 
     if use_mlflow:
         mlflow.log_artifact("feature-importances.png")
+
+
+def plot_precision_recall_curve(model, X, y, filename=None, use_mlflow=False):
+    display = PrecisionRecallDisplay.from_estimator(
+        model, X, y, name="Precision-Recall-Curve"
+    )
+    if filename:
+        plt.savefig(filename)
+        if use_mlflow:
+            mlflow.log_artifact(filename)
