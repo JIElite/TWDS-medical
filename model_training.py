@@ -8,7 +8,12 @@ from preprocessing import split_features_target, preprocess_IDATE
 from mlflow_utils import environment_setup
 from eval import convert_cv_scores_to_logging_scores
 from utils import save_model
-from vis import plot_rf_importance, plot_precision_recall_curve
+from vis import (
+    plot_rf_importance,
+    plot_lgbm_importances,
+    plot_precision_recall_curve,
+    plot_shap_summary,
+)
 
 
 class BaseTrainer:
@@ -248,20 +253,20 @@ class LightGBMDataPreparer:
 
 class LightGBMTrainer(LightGBMDataPreparer, HoldoutTrainer):
     def _after_training_hook(self, *args):
-        model = args[0]
-        X_val = args[3]
-        y_val = args[4]
+        model, X_val, y_val = args[0], args[3], args[4]
 
-        ax = lgb.plot_importance(model, max_num_features=25)
-        plt.savefig("importance.png")
-        if self.use_mlflow:
-            mlflow.log_artifact("importance.png")
-
+        plot_lgbm_importances(model, n_features=25, use_mlflow=self.use_mlflow)
         plot_precision_recall_curve(
             model,
             X_val,
             y_val,
             filename="lgbm-val-precision-recall.png",
+            use_mlflow=self.use_mlflow,
+        )
+        plot_shap_summary(
+            model,
+            X_val,
+            filename="lgbm-val-summary-plot.png",
             use_mlflow=self.use_mlflow,
         )
 
