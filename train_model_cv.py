@@ -36,7 +36,7 @@ if __name__ == "__main__":
     )
     cv_params = {
         "n_jobs": 16,
-        "cv": 2,
+        "cv": 5,
         "scoring": scoring,
         "return_train_score": True,
         "verbose": True,
