@@ -14,3 +14,19 @@ def preprocess_IDATE(df):
 
     df["IDATE"] = df["IDATE"].apply(convert_IDATE).astype(int)
     return df
+
+
+class DataPreprocessor:
+    def preprocess_df(self, df, mode=None):
+        pass
+
+
+class VaniilaLGBMPreprocessor(DataPreprocessor):
+    def _prepare_data(self, df):
+        """Preprocess the input data for LGBM"""
+        df = preprocess_IDATE(df)
+        df.drop(columns=["Unnamed: 0"], inplace=True)
+        return df
+
+    def preprocess_df(self, df):
+        return self._prepare_data(df)
