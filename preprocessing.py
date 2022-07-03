@@ -22,10 +22,17 @@ class DataPreprocessor:
 
 
 class VaniilaLGBMPreprocessor(DataPreprocessor):
+    def __init__(self, data_mode="training"):
+        self.drop_columns = ["Unnamed: 0"]
+        self.data_mode = data_mode
+
+        if data_mode == "testing":
+            self.drop_columns.append(DEPENDENT_TARGETS)
+
     def _prepare_data(self, df):
         """Preprocess the input data for LGBM"""
+        df.drop(columns=self.drop_columns, inplace=True)
         df = preprocess_IDATE(df)
-        df.drop(columns=["Unnamed: 0"], inplace=True)
         return df
 
     def preprocess_df(self, df):
