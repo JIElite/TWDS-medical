@@ -23,6 +23,16 @@ class DataPreprocessor:
 
 class VaniilaLGBMPreprocessor(DataPreprocessor):
     def __init__(self, data_mode="training"):
+        """The constructor for VaniilaLGBMPreprocessor
+
+        In default, the preprocessor will drop the columns:
+            "Unnamed: 0"
+
+        Args:
+            data_mode (str, optional): currently support "training", "testing"
+                mode for preprocessing. If we set data_mode to "testing", the
+                Preprocessor will drop the target column from dataframe.
+        """
         self.drop_columns = ["Unnamed: 0"]
         self.data_mode = data_mode
 
