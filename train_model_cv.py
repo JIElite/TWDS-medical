@@ -1,12 +1,13 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, recall_score, precision_score, roc_auc_score
 
-from model_training import CVTrainer
-from eval import scoring_maps, Evaluator
+from flare.model_training import CVTrainer
+from flare.eval import scoring_maps, Evaluator
 
 
 MLFLOW = True
-EVAL_TESTING = False
+EVAL_TESTING = True
+SAVE_TESTING_MODEL = True
 
 
 if __name__ == "__main__":
@@ -49,7 +50,9 @@ if __name__ == "__main__":
         exp_params=exp_params,
         cv_params=cv_params,
         scoring_funcs=scoring_funcs,
+        evaluator=evaluator,
         eval_testing=EVAL_TESTING,
+        save_testing_model=SAVE_TESTING_MODEL,
         use_mlflow=MLFLOW,
     )
     trainer.run()

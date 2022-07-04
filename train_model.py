@@ -1,8 +1,8 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, recall_score, precision_score, roc_auc_score
 
-from model_training import RandomForestTrainer
-from eval import Evaluator
+from flare.model_training import RandomForestTrainer
+from flare.eval import Evaluator
 
 
 MLFLOW = True

@@ -7,8 +7,8 @@ from sklearn.metrics import (
     f1_score,
 )
 
-from model_training import LightGBMTrainer, LightGBMCVTrainer
-from eval import Evaluator, scoring_maps
+from flare.model_training import LightGBMTrainer, LightGBMCVTrainer
+from flare.eval import Evaluator, scoring_maps
 
 MLFLOW = True
 SAVE_MODEL = True
