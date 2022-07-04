@@ -1,3 +1,6 @@
+import os
+os.path.append('..')
+
 import joblib
 
 import pandas as pd
