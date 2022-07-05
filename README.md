@@ -15,7 +15,7 @@ source of the dataset: https://www.cdc.gov/brfss/questionnaires/index.htm
 
 ## Model Training
 
-We provided to kinds of method to do model seletion:
+We provided two kinds of method to do model seletion:
 1. Hold-Out Training
 2. Cross-Validation
 
