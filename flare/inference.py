@@ -10,4 +10,4 @@ class ProbabilisticBinaryClassifier:
         if self.prob_threshold:
             return (self.model.predict_proba(X) > self.prob_threshold)[:, 0].astype(int)
         else:
-            return self.model.predict(X)
+            return self.model.predict_proba(X)
