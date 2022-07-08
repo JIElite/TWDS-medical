@@ -7,8 +7,9 @@ from sklearn.metrics import (
     f1_score,
 )
 
-from flare.model_training import LightGBMTrainer, LightGBMCVTrainer
-from flare.eval import Evaluator, scoring_maps
+from flare.model_training import LightGBMTrainer
+from flare.eval import Evaluator
+from flare.data import LightGBMDataPreparer0708
 
 MLFLOW = True
 SAVE_MODEL = True
@@ -16,17 +17,21 @@ EVAL_TESTING = False
 
 
 if __name__ == "__main__":
+    data_preparer_class = LightGBMDataPreparer0708
+    data_preparer = data_preparer_class()
+
     exp_params = {
         "run_name": "LGBM",
         "model_type": LGBMClassifier.__name__,
-        "training_data": "./merged_data/brfss_combine_train_v2.csv",
-        "testing_data": "./merged_data/brfss_combine_test_v2.csv",
+        "training_data": "./merged_data/brfss_combine_train_v2_important_20220708.csv",
+        "testing_data": "./merged_data/brfss_combine_test_v2_important_20220708.csv",
         "shuffle_seed": 42,
         "train_tests_split_seed": 42,
         "val_size": 0.1,
         "target": "ADDEPEV3",
-        "prob_threshold": 0.5,
+        "prob_threshold": 0.3,
         "model_dir": "./models/",
+        "data_preparer": data_preparer_class.__name__,
     }
     model_params = {
         "n_estimators": 100,
@@ -55,6 +60,7 @@ if __name__ == "__main__":
         model_class,
         model_params,
         exp_params=exp_params,
+        data_preparer=data_preparer,
         scoring_funcs=scoring_funcs,
         evaluator=evaluator,
         save_trained_model=SAVE_MODEL,
