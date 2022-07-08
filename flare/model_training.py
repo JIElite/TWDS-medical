@@ -217,6 +217,8 @@ class CVTrainer(MedicalProjectTrainer):
 
     def train(self, X_train, y_train):
         self.model = self.model_class(**self.model_params)
+
+        # FIXME: the scores are computed with prob_threshold=0.5
         scores = cross_validate(self.model, X_train, y_train, **self.cv_params)
         scores = {
             k: v
