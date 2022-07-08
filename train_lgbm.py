@@ -13,7 +13,7 @@ from flare.data import LightGBMDataPreparer0708
 
 MLFLOW = True
 SAVE_MODEL = True
-EVAL_TESTING = False
+EVAL_TESTING = True
 
 
 if __name__ == "__main__":
@@ -34,12 +34,17 @@ if __name__ == "__main__":
         "data_preparer": data_preparer_class.__name__,
     }
     model_params = {
-        "n_estimators": 100,
-        "n_jobs": 24,
-        "max_depth": 31,
+        "n_estimators": 120,
+        "n_jobs": -1,
+        "max_depth": 20,
         "objective": "binary",
-        "num_leaves": 30,
+        "subsample": 0.8,
+        "num_leaves": 31,
+        "learning_rate": 0.1,
+        "reg_lambda": 0.0,
     }
+    print(exp_params)
+    print(model_params)
     model_class = LGBMClassifier
     scoring_funcs = (
         accuracy_score,
@@ -63,7 +68,9 @@ if __name__ == "__main__":
         data_preparer=data_preparer,
         scoring_funcs=scoring_funcs,
         evaluator=evaluator,
+        eval_testing=EVAL_TESTING,
         save_trained_model=SAVE_MODEL,
+        save_testing_model=SAVE_MODEL,
         use_mlflow=MLFLOW,
     )
     trainer.run()
