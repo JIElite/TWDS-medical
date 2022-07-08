@@ -14,6 +14,7 @@ from flare.vis import (
     plot_precision_recall_curve,
     plot_shap_summary,
 )
+from flare.data import BaseDataPreparer
 
 
 class BaseTrainer:
@@ -22,28 +23,19 @@ class BaseTrainer:
     def __init__(self):
         pass
 
-    def _prepare_data(self, data_mode):
-        pass
-
     def run(self):
         pass
 
 
 class MedicalProjectTrainer(BaseTrainer):
-    def __init__(self):
-        pass
+    def __init__(self, data_preparer=None):
+        self.set_data_preparer(data_preparer)
 
-    def _prepare_data(self, data_mode="training_data"):
-        df_train = pd.read_csv(self.exp_params[data_mode])
-        df_train = df_train.sample(
-            frac=1, random_state=self.exp_params.get("shuffle_seed", None)
-        )
-        df_train = preprocess_IDATE(df_train)
-        X_train, y_train = split_features_target(
-            df_train, target=self.exp_params["target"]
-        )
-        y_train = y_train.replace(2, 0)
-        return X_train, y_train
+    def set_data_preparer(self, data_preparer=None):
+        if data_preparer:
+            self.data_preparer = data_preparer
+        else:
+            self.data_preparer = BaseDataPreparer()
 
     def eval_testing_data(self, X_train, y_train, X_test, y_test):
         assert self.evaluator
@@ -65,6 +57,7 @@ class HoldoutTrainer(MedicalProjectTrainer):
         scoring_funcs,
         evaluator,
         use_mlflow,
+        data_preparer=None,
         eval_testing=False,
         save_trained_model=False,
         save_testing_model=False,
@@ -80,6 +73,7 @@ class HoldoutTrainer(MedicalProjectTrainer):
         self.save_trained_model = save_trained_model
         self.save_testing_model = save_testing_model
         self.model_path = model_path
+        self.set_data_preparer(data_preparer=data_preparer)
 
         if self.use_mlflow:
             environment_setup()
@@ -91,8 +85,8 @@ class HoldoutTrainer(MedicalProjectTrainer):
                 mlflow.log_artifact(exp_params["script"])
 
     def run(self):
-        X_train_original, y_train_original = self._prepare_data(
-            data_mode="training_data"
+        X_train_original, y_train_original = self.data_preparer.prepare_data(
+            exp_params=self.exp_params, data_mode="training_data"
         )
         X_train, X_val, y_train, y_val = train_test_split(
             X_train_original,
@@ -121,7 +115,9 @@ class HoldoutTrainer(MedicalProjectTrainer):
         scores.update(val_scores)
 
         if self.eval_testing:
-            X_test, y_test = self._prepare_data(data_mode="testing_data")
+            X_test, y_test = self.data_preparer.prepare_data(
+                exp_params=self.exp_params, data_mode="testing_data"
+            )
             testing_scores, model_testing = self.eval_testing_data(
                 X_train_original, y_train_original, X_test, y_test
             )
@@ -160,6 +156,7 @@ class CVTrainer(MedicalProjectTrainer):
         model_params,
         exp_params,
         scoring_funcs,
+        data_preparer=None,
         evaluator=None,
         cv_params=None,
         eval_testing=False,
@@ -177,9 +174,9 @@ class CVTrainer(MedicalProjectTrainer):
         self.save_testing_model = save_testing_model
         self.save_model_path = save_model_path
         self.use_mlflow = use_mlflow
+        self.set_data_preparer(data_preparer=data_preparer)
 
         if self.use_mlflow:
-
             environment_setup()
             mlflow.start_run(run_name=self.exp_params["run_name"])
             mlflow.log_params(self.exp_params)
@@ -190,11 +187,15 @@ class CVTrainer(MedicalProjectTrainer):
 
     def run(self):
         """Record the training flow."""
-        X_train, y_train = self._prepare_data(data_mode="training_data")
+        X_train, y_train = self.data_preparer.prepare_data(
+            exp_params=self.exp_params, data_mode="training_data"
+        )
         scores = self.train(X_train, y_train)
 
         if self.eval_testing:
-            X_test, y_test = self._prepare_data(data_mode="testing_data")
+            X_test, y_test = self.data_preparer.prepare_data(
+                exp_params=self.exp_params, data_mode="testing_data"
+            )
             eval_testing_scores, model_testing = self.eval_testing_data(
                 X_train, y_train, X_test, y_test
             )
@@ -239,19 +240,7 @@ class RandomForestTrainer(HoldoutTrainer):
         )
 
 
-class LightGBMDataPreparer:
-    def _prepare_data(self, data_mode):
-        df = pd.read_csv(self.exp_params[data_mode])
-        df = df.sample(frac=1, random_state=self.exp_params.get("shuffle_seed", None))
-        df = preprocess_IDATE(df)
-        df.drop(columns=["Unnamed: 0"], inplace=True)
-
-        X, y = split_features_target(df, target=self.exp_params["target"])
-        y = y.replace(2, 0)
-        return X, y
-
-
-class LightGBMTrainer(LightGBMDataPreparer, HoldoutTrainer):
+class LightGBMTrainer(HoldoutTrainer):
     def _after_training_hook(self, *args):
         model, X_val, y_val = args[0], args[3], args[4]
 
@@ -271,5 +260,5 @@ class LightGBMTrainer(LightGBMDataPreparer, HoldoutTrainer):
         )
 
 
-class LightGBMCVTrainer(LightGBMDataPreparer, CVTrainer):
+class LightGBMCVTrainer(CVTrainer):
     pass
