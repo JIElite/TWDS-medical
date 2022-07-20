@@ -1,5 +1,8 @@
 # TWDS Group20 Medical Project
 
+Note!!
+**This repository is currently deprecated and I have moved it to an organization to continue the development, please refer to our [new repository](https://github.com/TWDS-2022-Group20/model-trainer)**
+
 ## Pre-requisite
 In this project, we use mlflow to track the records of each training experiments. Before you step into this project, please make sure your are familar with building a mlflow localhost server.
 
